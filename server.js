@@ -2,8 +2,10 @@ const express = require('express');
 const bodyParser=require('body-parser');
 const mysql=require('mysql');
 const connectionManager=require('mysql-connection-manager');
+const cors=require('cors');
 var app =express();
 app.use(bodyParser.json());
+app.use(cors());
 
 var conn = mysql.createConnection({
   host: "localhost",
@@ -15,10 +17,6 @@ var conn = mysql.createConnection({
 conn.connect(function(err) {
   if (err) throw err;
   console.log("Successfully connected to MYSQL database!");
-});
-
-app.get('/',(req,res)=>{
-    res.send('hello');
 });
 
 app.get('/children',(req,res)=>{

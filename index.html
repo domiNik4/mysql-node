@@ -4,10 +4,100 @@
 	<title>Node MySQL connection</title>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+	<script>
+	$(document).ready(function(){
+
+	var ajaxData;
+
+
+	$("#btn").on("click",function(){
+		getData();
+		displayData();
+		var name;
+		var number;
+		var dataToSend={
+			name:$("#name").val(),
+			idp:$("#number").val()
+		};
+
+		if(dataToSend.name!=null && dataToSend.idp!=null){
+			dataToSend=JSON.stringify(dataToSend);
+			postData(dataToSend);
+			getData();
+			displayData();
+		}
+		else{
+			$("#error").empty();
+			$("#error").append("inputs must not be empty");
+		}
+
+
+	});
+
+	function getData(){
+		var dfd=$.Deferred();
+		ajaxRequest('/children','GET').done(function(){
+			dfd.resolve();
+		});
+		return dfd.promise();
+	}
+
+	function postData(dataToSend){
+		var dfd=$.Deferred();
+		ajaxRequest('/children','POST', dataToSend).done(function(){
+			dfd.resolve();
+		});
+		return dfd.promise();
+	}
+
+	function displayData (){
+		$(".row").remove();
+		if(ajaxData!=undefined)
+			for (var i=0;i<ajaxData.length;i++){
+				$('#tableChildren').append("<tr class='row'><td>"+ajaxData[i].name+"</td><td>"+ajaxData[i].idp+"</td></tr>");
+			}
+	}
+
+	function ajaxRequest(url, requestType, dataToSend) {
+        var dfd = $.Deferred();
+        $.ajax({
+            url: 'http://localhost:3000' + url,
+            type: requestType,
+            data: dataToSend,
+            contentType: 'application/json',
+            success: function(data) {
+                if (data != null && data.token === undefined){
+                    ajaxData = data;
+                }
+                else if(data != null){
+                    docData.token = data.token;
+                }
+                dfd.resolve();
+            },
+            error: function(errorData) {
+                dfd.reject();
+                            }
+        });
+        return dfd.promise();
+    }
+
+	});			
+	</script>
 </head>
 <body>
 <h1>List of children</h1>
-	<div class="w3-container">
+	<div class="w3-container w3-card-2" id="container">
+		<input type="text" class="input" id="name" placeholder="name">
+		<input type="number" class="input" id="number" placeholder="assigned teacher (number)">
+		<div id="error"></div>
+		<button type="button" id="btn">add</button>
 	</div>
+
+	<table id="tableChildren">
+		<tr>
+			<th>Name</th>
+			<th>Assigned teacher</th>
+		</tr>
+	</table>
 </body>
 </html>
